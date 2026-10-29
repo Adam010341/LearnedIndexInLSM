@@ -74,10 +74,17 @@ std::pair<uint64_t, uint64_t> LearnedIndexData::GetPosition(
   }
   else{
       double result = (target_int - string_segments[left].x) * string_segments[left].k + string_segments[left].b;
+      // Absent keys after the last key of this segment: cap the extrapolated estimate by the next segment's estimate
+      // of its own first key, which is its b (the dummy last segment has none).
+      if (left + 2 < string_segments.size()) {
+        double next_start = string_segments[left + 1].b;
+        if (result > next_start) result = next_start;
+      }
       result = is_level ? result / 2 : result;
       lower =
           result - error > 0 ? (uint64_t)std::floor(result - error) : 0;
-      upper = (uint64_t)std::ceil(result + error);
+      // + 1: the first key not smaller than an absent key is one past the key before it
+      upper = (uint64_t)std::ceil(result + error) + 1;
       if (lower >= size) return std::make_pair(size, size);
       upper = upper < size ? upper : size - 1;
   }
