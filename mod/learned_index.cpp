@@ -33,7 +33,8 @@ std::pair<uint64_t, uint64_t> LearnedIndexData::GetPosition(
   // check if the key is within the model bounds
   uint64_t target_int = SliceToInteger(target_x);
   if (target_int > max_key) return std::make_pair(size, size);
-  if (target_int < min_key) return std::make_pair(size, size);
+  // Below the first key the answer is position 0 (Seek); (size, size) made the iterator skip the whole file.
+  if (target_int < min_key) return std::make_pair(0, 0);
 
   // binary search between segments
   uint32_t left = 0, right = (uint32_t)string_segments.size() - 1;
