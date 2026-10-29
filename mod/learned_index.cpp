@@ -50,11 +50,11 @@ std::pair<uint64_t, uint64_t> LearnedIndexData::GetPosition(
   // calculate the interval according to the selected segment
   uint64_t lower, upper;
   if(adgMod::nofence == 1){
-    double result = target_int * string_segments[left].k + string_segments[left].b;
+    double result = (target_int - string_segments[left].x) * string_segments[left].k + string_segments[left].b;
     lower = result;
     upper = lower;
     if(is_level){
-      double result = target_int * string_segments[left].k + string_segments[left].b;
+      double result = (target_int - string_segments[left].x) * string_segments[left].k + string_segments[left].b;
       result = is_level ? result / 2 : result;
       lower =
           result - error > 0 ? (uint64_t)std::floor(result - error) : 0;
@@ -64,7 +64,7 @@ std::pair<uint64_t, uint64_t> LearnedIndexData::GetPosition(
     }
   }
   else if((adgMod::nofence == 2)){
-    double result = target_int * string_segments[left].k + string_segments[left].b;
+    double result = (target_int - string_segments[left].x) * string_segments[left].k + string_segments[left].b;
       result = is_level ? result / 2 : result;
       lower =
           result -  adgMod::block_num_entries - error > 0 ? (uint64_t)std::floor(result - adgMod::block_num_entries - error) : 0;
@@ -73,7 +73,7 @@ std::pair<uint64_t, uint64_t> LearnedIndexData::GetPosition(
       upper = upper < size ? upper : size - 1;
   }
   else{
-      double result = target_int * string_segments[left].k + string_segments[left].b;
+      double result = (target_int - string_segments[left].x) * string_segments[left].k + string_segments[left].b;
       result = is_level ? result / 2 : result;
       lower =
           result - error > 0 ? (uint64_t)std::floor(result - error) : 0;
