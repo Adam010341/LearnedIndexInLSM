@@ -16,7 +16,7 @@ class LearnedIterator : public Iterator {
     block_content(), current_block(-1), current_entry(-1), key_(), value_() { };
 
   virtual ~LearnedIterator() {
-    delete[] scratch;
+    // scratch is a member array (below), not heap memory: delete[] aborted with "free(): invalid pointer"
   }
 
   virtual void Seek(const Slice& target) {
