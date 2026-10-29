@@ -269,6 +269,17 @@ PLR::train(std::vector<std::pair<string,int>>& keys, bool file) {
     // x = 0, which the checks below read as "no segment". Segment.x is made absolute again; GetPosition subtracts it.
     const uint64_t base = size ? stoull(keys[0].first) - 1 : 0;
     for (int i = 0; i < size; ++i) {
+        // File models (an L0 file can hold several versions of a key): train on the first occurrence only, which is
+        // where lower_bound lands, and after a run of repeats add (key + 1, i) so that absent keys between the run and
+        // the next key map to position i (as RadixSpline's fix and PGM-index do).
+        if (file && i > 0 && keys[i].first == keys[i - 1].first) continue;
+        if (file && i > 1 && keys[i - 1].first == keys[i - 2].first) {
+            uint64_t next_x = stoull(keys[i - 1].first) + 1;
+            if (next_x < stoull(keys[i].first)) {
+                Segment seg = plr.process(point((double) (next_x - base), i), file, 0);
+                if (seg.x != 0 || seg.k != 0 || seg.b != 0) { seg.x += base; this->segments.push_back(seg); }
+            }
+        }
         Segment seg = plr.process(point((double) (stoull(keys[i].first) - base), i), file, keys[i].second);
         if (seg.x != 0 ||
             seg.k != 0 ||

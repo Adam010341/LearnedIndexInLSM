@@ -1183,15 +1183,11 @@ void LearnedIndexData::LearnFileNew(const std::vector<uint64_t>& keys, int level
     min_key = keys.front();
     max_key = temp;
     size = keys.size();
-    uint64_t last_key = 0;
+    // Keys are passed unchanged: PLR::train skips repeated keys itself (replacing a repeat by "previous + 1" turned
+    // 5, 5, 5 into 5, 6, 5 and moved the first occurrence that Get looks for).
     auto cur_keys = keys;
     std::vector<std::pair<std::string, int>> skeys;
     for (size_t i = 0; i < cur_keys.size(); ++i) {
-      long long thiskey = cur_keys[i];
-      if (i > 0 && last_key == thiskey) {
-        cur_keys[i] = last_key + 1;
-      }
-      last_key = cur_keys[i];
       int is_first = i == 0;
       skeys.push_back({std::to_string(cur_keys[i]), is_first});
     }
